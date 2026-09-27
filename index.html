@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixelSlim — Free Online Image Compressor | Compress to Exact KB</title>
+<meta name="description" content="PixelSlim is a free online image compressor that shrinks JPEG, PNG, WebP and BMP files to an exact KB target, batch compresses photos, converts to WebP, and never uploads your images. Unlimited free usage, no signup.">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html{scroll-behavior:smooth}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .glass{background:rgba(255,255,255,.62);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border:1px solid rgba(255,255,255,.75);box-shadow:0 8px 32px rgba(14,165,233,.12),inset 0 1px 0 rgba(255,255,255,.8)}
+  .glass-deep{background:rgba(255,255,255,.82);backdrop-filter:blur(22px) saturate(1.5);-webkit-backdrop-filter:blur(22px) saturate(1.5);border:1px solid rgba(255,255,255,.9);box-shadow:0 12px 44px rgba(14,165,233,.16)}
+  .bg-scene{background:linear-gradient(135deg,#e0f2fe 0%,#f0f9ff 30%,#ffffff 55%,#e0f2fe 80%,#bae6fd 100%)}
+  .blob{position:absolute;border-radius:9999px;filter:blur(70px);opacity:.5;pointer-events:none}
+  .chip{transition:all .15s ease}
+  .chip.active{background:#0EA5E9;color:#fff;border-color:#0EA5E9;box-shadow:0 4px 14px rgba(14,165,233,.35)}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:8px;border-radius:9999px;background:linear-gradient(90deg,#0EA5E9,#bae6fd);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:9999px;background:#fff;border:3px solid #0EA5E9;box-shadow:0 2px 10px rgba(14,165,233,.45);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:9999px;background:#fff;border:3px solid #0EA5E9;cursor:pointer}
+  .cmp{--pos:50%;touch-action:none}
+  .cmp .cmp-after-layer{clip-path:inset(0 calc(100% - var(--pos)) 0 0)}
+  .cmp .cmp-divider{left:var(--pos)}
+  .cmp img{-webkit-user-drag:none;user-select:none}
+  .drop-active{border-color:#0EA5E9!important;background:rgba(14,165,233,.10)!important;transform:scale(1.01)}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .28s ease}
+  .faq-item.open .faq-a{max-height:500px}
+  .faq-item.open .faq-chev{transform:rotate(180deg)}
+  .faq-chev{transition:transform .25s ease}
+  .spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+  .fade-in{animation:fadeIn .35s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .no-print{}
+  @media print{.no-print{display:none!important}}
+</style>
+</head>
+<body id="top" class="bg-scene text-slate-800 min-h-screen antialiased">
+
+<!-- ambient blobs -->
+<div class="fixed inset-0 -z-10 overflow-hidden">
+  <div class="blob w-[420px] h-[420px] bg-sky-300/60 -top-24 -left-24"></div>
+  <div class="blob w-[360px] h-[360px] bg-cyan-200/70 top-1/3 -right-28"></div>
+  <div class="blob w-[300px] h-[300px] bg-sky-200/60 bottom-0 left-1/4"></div>
+</div>
+
+<!-- ======= HEADER ======= -->
+<header class="sticky top-0 z-40 bg-white/70 backdrop-blur-xl border-b border-white/60">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-2.5 group">
+      <span class="w-9 h-9 rounded-2xl bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center shadow-lg shadow-sky-300/50 group-hover:scale-105 transition">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+      </span>
+      <span class="text-xl font-extrabold tracking-tight text-slate-900">Pixel<span class="text-sky-500">Slim</span></span>
+    </a>
+    <nav class="flex items-center gap-5 text-sm font-semibold">
+      <a href="#top" class="text-slate-600 hover:text-sky-600 transition">Home</a>
+      <a href="https://fixoraa.tech" class="px-4 py-1.5 rounded-full bg-sky-500 text-white hover:bg-sky-600 shadow-md shadow-sky-300/40 transition">More Tools</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ======= HERO ======= -->
+<section class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-6 text-center">
+  <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-bold text-sky-700 uppercase tracking-widest mb-5">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+    Unlimited Free Usage
+  </div>
+  <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900">Shrink images to <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-cyan-400">any exact size</span></h1>
+  <p class="mt-4 max-w-2xl mx-auto text-slate-600 text-base sm:text-lg">Compress photos to a precise KB target, batch-process whole folders, and convert to WebP — all inside your browser. Your files never leave your device. No signup, no watermark, no limits.</p>
+  <div class="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50/80 border border-emerald-200 rounded-full px-4 py-2">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+    100% private — files are processed locally, nothing is uploaded
+  </div>
+</section>
+
+<!-- ======= TOP AD (verbatim) ======= -->
+<div class="no-print mx-auto max-w-6xl px-4 sm:px-6 pt-4" role="complementary" aria-label="Advertisement">
+  <div class="mx-auto text-center" style="max-width:728px">
+    <span class="block text-[10px] tracking-[0.18em] uppercase text-slate-400 mb-1.5">Advertisement</span>
+    <div class="flex justify-center overflow-hidden">
+      <div class="origin-top scale-[0.44] sm:scale-100 shrink-0">
+        <script>
+          atOptions = { 'key' : '4e68ac77881c17fe128a46565d9a4e8c', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
+        </script>
+        <script src="https://www.highrevenueformat.com/4e68ac77881c17fe128a46565d9a4e8c/invoke.js"></script>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= TOOL ======= -->
+<main class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+
+  <!-- Dropzone -->
+  <div id="dropzone" class="glass rounded-3xl p-8 sm:p-12 text-center cursor-pointer border-2 border-dashed border-sky-200 transition-all hover:border-sky-400">
+    <div class="mx-auto w-16 h-16 rounded-3xl bg-gradient-to-br from-sky-400 to-cyan-500 flex items-center justify-center shadow-xl shadow-sky-300/50 mb-4">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>
+    </div>
+    <p class="text-lg font-bold text-slate-800">Drop images here or click to browse</p>
+    <p class="text-sm text-slate-500 mt-1.5">JPEG · PNG · WebP · BMP · GIF (first frame) — as many as you like</p>
+    <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp,image/bmp,image/gif" multiple class="hidden">
+  </div>
+  <div id="fileMsg" class="mt-3 text-sm font-medium text-center min-h-[1.5rem]"></div>
+
+  <!-- Settings -->
+  <div class="glass rounded-3xl p-6 sm:p-8 mt-4">
+    <h2 class="text-lg font-extrabold text-slate-900 mb-5 flex items-center gap-2">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Compression settings
+    </h2>
+
+    <!-- Mode -->
+    <div class="grid sm:grid-cols-2 gap-3 mb-6">
+      <button id="modeTarget" class="mode-btn text-left rounded-2xl p-4 border-2 transition bg-sky-50/70 border-sky-500">
+        <p class="font-extrabold text-slate-900">🎯 Target size <span class="ml-1 text-[10px] font-bold uppercase tracking-wider text-white bg-sky-500 rounded-full px-2 py-0.5 align-middle">Smart</span></p>
+        <p class="text-xs text-slate-500 mt-1">Binary-search finds the highest quality that fits your exact KB limit.</p>
+      </button>
+      <button id="modeQuality" class="mode-btn text-left rounded-2xl p-4 border-2 transition bg-white/50 border-slate-200 hover:border-sky-300">
+        <p class="font-extrabold text-slate-900">🎚️ Manual quality</p>
+        <p class="text-xs text-slate-500 mt-1">You pick the quality — we show the live file size.</p>
+      </button>
+    </div>
+
+    <!-- Target panel -->
+    <div id="targetPanel" class="mb-6">
+      <label class="text-sm font-bold text-slate-700" for="targetKb">Target file size (KB)</label>
+      <div class="flex flex-wrap items-center gap-2 mt-2">
+        <input id="targetKb" type="number" min="1" max="50000" value="100" class="w-32 rounded-xl border border-sky-200 bg-white/80 px-4 py-2.5 text-lg font-extrabold text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
+        <span class="text-sm font-bold text-slate-500">KB</span>
+        <div class="flex flex-wrap gap-1.5 ml-1" id="kbChips">
+          <button class="chip px-3 py-1.5 text-xs font-bold rounded-full border border-sky-200 bg-white/70 text-slate-600 hover:border-sky-400" data-kb="20">20 KB</button>
+          <button class="chip px-3 py-1.5 text-xs font-bold rounded-full border border-sky-200 bg-white/70 text-slate-600 hover:border-sky-400" data-kb="50">50 KB</button>
+          <button class="chip active px-3 py-1.5 text-xs font-bold rounded-full border border-sky-200 bg-white/70 text-slate-600 hover:border-sky-400" data-kb="100">100 KB</button>
+          <button class="chip px-3 py-1.5 text-xs font-bold rounded-full border border-sky-200 bg-white/70 text-slate-600 hover:border-sky-400" data-kb="200">200 KB</button>
+          <button class="chip px-3 py-1.5 text-xs font-bold rounded-full border border-sky-200 bg-white/70 text-slate-600 hover:border-sky-400" data-kb="1024">1 MB</button>
+        </div>
+      </div>
+      <p class="text-xs text-slate-500 mt-2">Quick presets for exam forms &amp; portal uploads (20/50/100/200 KB) or type any value.</p>
+    </div>
+
+    <!-- Quality panel -->
+    <div id="qualityPanel" class="mb-6 hidden">
+      <div class="flex items-center justify-between">
+        <label class="text-sm font-bold text-slate-700" for="qualityRange">Quality</label>
+        <span id="qualityLabel" class="text-sm font-extrabold text-sky-600 bg-sky-50 rounded-full px-3 py-1">80%</span>
+      </div>
+      <input id="qualityRange" type="range" min="1" max="100" value="80" class="w-full mt-3">
+      <p class="text-xs text-slate-500 mt-2">Higher = better looking, bigger file. PNG output is lossless (slider ignored).</p>
+    </div>
+
+    <!-- Format + resize -->
+    <div class="grid sm:grid-cols-2 gap-4 mb-6">
+      <div>
+        <label class="text-sm font-bold text-slate-700" for="formatSel">Output format</label>
+        <select id="formatSel" class="mt-2 w-full rounded-xl border border-sky-200 bg-white/80 px-4 py-2.5 font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
+          <option value="image/webp" selected>WebP — smallest, modern</option>
+          <option value="image/jpeg">JPEG — universal</option>
+          <option value="image/png">PNG — lossless</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm font-bold text-slate-700" for="maxDimSel">Resize (max side)</label>
+        <select id="maxDimSel" class="mt-2 w-full rounded-xl border border-sky-200 bg-white/80 px-4 py-2.5 font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
+          <option value="0" selected>Keep original size</option>
+          <option value="800">800 px</option>
+          <option value="1200">1200 px</option>
+          <option value="1920">1920 px</option>
+          <option value="2560">2560 px</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <button id="compressBtn" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-extrabold text-lg shadow-xl shadow-sky-300/50 hover:shadow-sky-400/60 hover:scale-[1.02] active:scale-95 transition disabled:opacity-40 disabled:pointer-events-none" disabled>
+        Compress images
+      </button>
+      <button id="downloadAllBtn" class="px-6 py-3.5 rounded-2xl glass font-bold text-sky-700 hover:bg-white/90 transition disabled:opacity-40 disabled:pointer-events-none hidden" disabled>⬇ Download all</button>
+      <button id="clearBtn" class="px-5 py-3.5 rounded-2xl text-slate-500 font-bold hover:text-rose-500 transition hidden">Clear</button>
+      <span id="progress" class="text-sm font-semibold text-slate-500 ml-auto"></span>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results" class="mt-8 grid md:grid-cols-2 gap-5"></div>
+  <p id="emptyState" class="text-center text-slate-400 text-sm mt-10 mb-4">Your compressed images will appear here — drag the divider on any result to compare before &amp; after.</p>
+</main>
+
+<!-- ======= BOTTOM AD (verbatim) ======= -->
+<div class="no-print mx-auto max-w-6xl px-4 sm:px-6 pb-4" role="complementary" aria-label="Advertisement">
+  <div class="mx-auto text-center" style="max-width:728px">
+    <span class="block text-[10px] tracking-[0.18em] uppercase text-slate-400 mb-1.5">Advertisement</span>
+    <div class="flex justify-center overflow-hidden">
+      <script async src="https://js.wpadmngr.com/static/adManager.js" data-admpid="464498"></script>
+    </div>
+  </div>
+</div>
+<!-- ======= PIXELSLIM CORE — pure logic, no DOM (extracted by tests) ======= -->
+<script id="pixelslim-core">
+'use strict';
+/* Pure helpers for PixelSlim. No DOM access here so tests can eval this block directly. */
+
+/** Human-readable file size. */
+function formatBytes(bytes) {
+  if (!isFinite(bytes) || bytes < 0) return '—';
+  if (bytes < 1024) return Math.round(bytes) + ' B';
+  const units = ['KB', 'MB', 'GB'];
+  let v = bytes / 1024, u = 0;
+  while (v >= 1024 && u < units.length - 1) { v /= 1024; u++; }
+  return (v >= 100 ? Math.round(v) : Math.round(v * 10) / 10) + ' ' + units[u];
+}
+
+/** Parse a KB text input -> target bytes, or null when invalid. Max 50 MB. */
+function parseTargetKb(str) {
+  if (typeof str !== 'string') str = String(str);
+  const kb = parseFloat(str.trim().replace(/,/g, ''));
+  if (!isFinite(kb) || kb < 1 || kb > 50000) return null;
+  return Math.round(kb * 1024);
+}
+
+/** Supported input MIME types (GIF handled as static first frame). */
+function isSupportedMime(mime) {
+  return ['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/gif'].includes(mime);
+}
+
+/** Output file extension for a chosen output MIME. */
+function outputExt(mime) {
+  if (mime === 'image/jpeg') return 'jpg';
+  if (mime === 'image/webp') return 'webp';
+  if (mime === 'image/png') return 'png';
+  return 'bin';
+}
+
+/** MIME for extension of an original filename (used when re-deriving). */
+function mimeForFile(file) {
+  if (file && file.type && isSupportedMime(file.type)) return file.type;
+  return 'image/jpeg';
+}
+
+/**
+ * Generic binary search over a numeric parameter.
+ * encodeAt(param) -> Promise<sizeBytes>. Finds the LARGEST param in [lo,hi]
+ * whose encoded size <= targetBytes (assumes size grows with param).
+ * Returns {param, size} or null when even `lo` is too big.
+ */
+async function binarySearchParam(encodeAt, targetBytes, lo, hi, iterations) {
+  iterations = iterations || 8;
+  let low = lo, high = hi, best = null, bestSize = Infinity;
+  for (let i = 0; i < iterations; i++) {
+    const p = (low + high) / 2;
+    const size = await encodeAt(p);
+    if (size == null || !isFinite(size) || size < 0) { high = p; continue; }
+    if (size <= targetBytes) { best = p; bestSize = size; low = p; }
+    else { high = p; }
+  }
+  return best === null ? null : { param: best, size: bestSize };
+}
+
+/** Fit (w,h) inside maxDim on the long side; never upscales. */
+function fitDims(w, h, maxDim) {
+  if (!maxDim || maxDim <= 0) return { w: Math.round(w), h: Math.round(h) };
+  const m = Math.max(w, h);
+  if (m <= maxDim) return { w: Math.round(w), h: Math.round(h) };
+  const s = maxDim / m;
+  return { w: Math.max(1, Math.round(w * s)), h: Math.max(1, Math.round(h * s)) };
+}
+
+/**
+ * Estimate a dimension shrink factor when quality alone cannot hit the target.
+ * File size scales roughly with pixel area, so scale ~= sqrt(target/current).
+ * Clamped to [0.2, 1].
+ */
+function shrinkScaleForTarget(currentBytes, targetBytes) {
+  if (!isFinite(currentBytes) || currentBytes <= 0 || !isFinite(targetBytes) || targetBytes <= 0) return 1;
+  const s = Math.sqrt(targetBytes / currentBytes) * 0.92;
+  return Math.min(1, Math.max(0.2, s));
+}
+
+/** Percent saved from original -> compressed. */
+function percentSaved(orig, comp) {
+  if (!orig || orig <= 0) return 0;
+  return Math.max(0, Math.round((1 - comp / orig) * 100));
+}
+
+/* Export for Node tests when eval'd under module scope */
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { formatBytes, parseTargetKb, isSupportedMime, outputExt, mimeForFile, binarySearchParam, fitDims, shrinkScaleForTarget, percentSaved };
+}
+</script>
+
+<script>
+'use strict';
+/* ======= PIXELSLIM APP ======= */
+const $ = (id) => document.getElementById(id);
+const dropzone = $('dropzone'), fileInput = $('fileInput'), fileMsg = $('fileMsg');
+const compressBtn = $('compressBtn'), downloadAllBtn = $('downloadAllBtn'), clearBtn = $('clearBtn');
+const progressEl = $('progress'), resultsEl = $('results'), emptyState = $('emptyState');
+const targetKbInput = $('targetKb'), kbChips = $('kbChips');
+const qualityRange = $('qualityRange'), qualityLabel = $('qualityLabel');
+const formatSel = $('formatSel'), maxDimSel = $('maxDimSel');
+
+let mode = 'target';
+let queue = [];        // File objects accepted
+let results = [];      // {blob, name, origBytes, compBytes, quality, w, h, url, origUrl}
+
+function setMsg(text, kind) {
+  fileMsg.textContent = text || '';
+  fileMsg.className = 'mt-3 text-sm font-medium text-center min-h-[1.5rem] ' +
+    (kind === 'error' ? 'text-rose-500' : kind === 'ok' ? 'text-emerald-600' : 'text-slate-500');
+}
+
+function refreshControls() {
+  compressBtn.disabled = queue.length === 0;
+  const anyDone = results.length > 0;
+  downloadAllBtn.classList.toggle('hidden', !anyDone);
+  clearBtn.classList.toggle('hidden', !(queue.length || anyDone));
+  downloadAllBtn.disabled = !anyDone;
+  emptyState.style.display = anyDone ? 'none' : '';
+}
+
+function addFiles(fileList) {
+  let added = 0, skipped = 0, gifNote = false;
+  for (const f of fileList) {
+    if (!f || !f.type) { skipped++; continue; }
+    if (f.size > 50 * 1024 * 1024) { skipped++; continue; }           // 50 MB sanity cap
+    if (!isSupportedMime(f.type)) { skipped++; continue; }
+    if (f.type === 'image/gif') gifNote = true;                        // first frame only
+    queue.push(f); added++;
+  }
+  if (added) setMsg(added + ' image' + (added > 1 ? 's' : '') + ' ready to compress.' + (gifNote ? ' Note: GIFs compress as static images (first frame).' : ''), 'ok');
+  else if (skipped) setMsg('No supported images found. Please add JPEG, PNG, WebP, BMP or GIF files.', 'error');
+  refreshControls();
+}
+
+dropzone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', (e) => { addFiles(e.target.files); fileInput.value = ''; });
+['dragover', 'dragenter'].forEach(ev => dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.add('drop-active'); }));
+['dragleave', 'drop'].forEach(ev => dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.remove('drop-active'); }));
+dropzone.addEventListener('drop', (e) => { if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files); });
+
+/* Mode toggle */
+function setMode(m) {
+  mode = m;
+  const on = ['bg-sky-50/70', 'border-sky-500'], off = ['bg-white/50', 'border-slate-200'];
+  $('modeTarget').classList.remove(...on, ...off);
+  $('modeQuality').classList.remove(...on, ...off);
+  $('modeTarget').classList.add(...(m === 'target' ? on : off));
+  $('modeQuality').classList.add(...(m === 'quality' ? on : off));
+  $('targetPanel').classList.toggle('hidden', m !== 'target');
+  $('qualityPanel').classList.toggle('hidden', m !== 'quality');
+}
+$('modeTarget').addEventListener('click', () => setMode('target'));
+$('modeQuality').addEventListener('click', () => setMode('quality'));
+
+kbChips.addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-kb]'); if (!b) return;
+  targetKbInput.value = b.dataset.kb;
+  kbChips.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+});
+targetKbInput.addEventListener('input', () => {
+  kbChips.querySelectorAll('button').forEach(x => x.classList.toggle('active', x.dataset.kb === targetKbInput.value));
+});
+qualityRange.addEventListener('input', () => { qualityLabel.textContent = qualityRange.value + '%'; });
+
+clearBtn.addEventListener('click', () => {
+  queue = [];
+  results.forEach(r => { URL.revokeObjectURL(r.url); URL.revokeObjectURL(r.origUrl); });
+  results = []; resultsEl.innerHTML = ''; progressEl.textContent = '';
+  setMsg('', ''); refreshControls();
+});
+
+/* ---- encoding ---- */
+function loadBitmap(file) {
+  return new Promise((resolve, reject) => {
+    if (window.createImageBitmap) {
+      createImageBitmap(file).then(resolve, () => fallbackImg(file).then(resolve, reject));
+    } else fallbackImg(file).then(resolve, reject);
+  });
+}
+function fallbackImg(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not decode image')); };
+    img.src = url;
+  });
+}
+function drawToCanvas(src, w, h) {
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h));
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, c.width, c.height);   // flatten transparency for JPEG
+  ctx.drawImage(src, 0, 0, c.width, c.height);
+  return c;
+}
+function canvasToBlob(canvas, mime, quality) {
+  return new Promise((resolve) => {
+    canvas.toBlob((b) => resolve(b), mime, quality);
+  });
+}
+
+async function processOne(file) {
+  const outMime = formatSel.value;
+  const maxDim = parseInt(maxDimSel.value, 10) || 0;
+  const src = await loadBitmap(file);
+  const naturalW = src.width || src.videoWidth || 1, naturalH = src.height || src.videoHeight || 1;
+  let { w, h } = fitDims(naturalW, naturalH, maxDim);
+  let canvas = drawToCanvas(src, w, h);
+  if (src.close) { try { src.close(); } catch (e) {} }
+
+  const encodeAt = async (scale, quality) => {
+    const cw = Math.max(1, Math.round(w * scale)), ch = Math.max(1, Math.round(h * scale));
+    const c = drawToCanvas(canvas, cw, ch);
+    const blob = await canvasToBlob(c, outMime, quality);
+    return blob ? blob.size : null;
+  };
+  const renderBlob = async (scale, quality) => {
+    const cw = Math.max(1, Math.round(w * scale)), ch = Math.max(1, Math.round(h * scale));
+    return canvasToBlob(drawToCanvas(canvas, cw, ch), outMime, quality);
+  };
+
+  let finalBlob, qualityUsed = null, finalScale = 1, note = '';
+
+  if (mode === 'target') {
+    const targetBytes = parseTargetKb(targetKbInput.value);
+    if (targetBytes === null) throw new Error('Please enter a target between 1 KB and 50,000 KB.');
+    if (outMime === 'image/png') {
+      // PNG is lossless: quality has no effect — binary-search the dimension scale instead.
+      let scale = 1, found = null;
+      for (let attempt = 0; attempt < 6 && !found; attempt++) {
+        const res = await binarySearchParam((s) => encodeAt(scale * s, 0.92), targetBytes, 0.2, 1, 8);
+        if (res) { found = res; finalScale = scale * res.param; }
+        else scale *= 0.7;
+      }
+      if (!found) { finalBlob = await renderBlob(scale, 0.92); finalScale = scale; note = 'Target unreachable — smallest lossless PNG we could make.'; }
+      else { finalBlob = await renderBlob(finalScale, 0.92); }
+    } else {
+      let scale = 1, found = null;
+      for (let attempt = 0; attempt < 6 && !found; attempt++) {
+        const res = await binarySearchParam((q) => encodeAt(scale, q), targetBytes, 0.02, 1, 8);
+        if (res) { found = res; finalScale = scale; }
+        else {
+          const probe = await encodeAt(scale, 0.02);
+          if (probe == null) break;
+          scale *= shrinkScaleForTarget(probe, targetBytes);   // downscale, then re-search quality
+        }
+      }
+      if (!found) {
+        finalBlob = await renderBlob(scale, 0.02); finalScale = scale;
+        note = 'Target unreachable — used minimum quality plus downscaling.';
+      } else {
+        qualityUsed = found.param; finalBlob = await renderBlob(finalScale, found.param);
+      }
+    }
+  } else {
+    const q = parseInt(qualityRange.value, 10) / 100;
+    qualityUsed = outMime === 'image/png' ? null : q;
+    finalBlob = await renderBlob(1, outMime === 'image/png' ? 0.92 : q);
+  }
+
+  if (!finalBlob) throw new Error('Browser could not encode this image in the chosen format.');
+  const base = file.name.replace(/\.[a-zA-Z0-9]+$/, '') || 'image';
+  const outName = base + '-compressed.' + outputExt(outMime);
+  return {
+    blob: finalBlob, name: outName,
+    origBytes: file.size, compBytes: finalBlob.size,
+    quality: qualityUsed, note,
+    w: Math.max(1, Math.round(w * finalScale)), h: Math.max(1, Math.round(h * finalScale)),
+    outMime,
+    url: URL.createObjectURL(finalBlob),
+    origUrl: URL.createObjectURL(file)
+  };
+}
+
+/* ---- results UI ---- */
+function resultCard(r, idx) {
+  const saved = percentSaved(r.origBytes, r.compBytes);
+  const card = document.createElement('div');
+  card.className = 'glass-deep rounded-3xl overflow-hidden fade-in';
+  card.innerHTML =
+    '<div class="cmp relative overflow-hidden select-none" style="max-height:340px">' +
+      '<img src="' + r.origUrl + '" alt="Original image" class="w-full h-56 sm:h-64 object-contain bg-slate-900/5">' +
+      '<div class="cmp-after-layer absolute inset-0"><img src="' + r.url + '" alt="Compressed image" class="w-full h-56 sm:h-64 object-contain bg-slate-900/5"></div>' +
+      '<div class="cmp-divider absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_12px_rgba(14,165,233,.8)]">' +
+        '<span class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center text-sky-600 font-extrabold text-sm">⇔</span>' +
+      '</div>' +
+      '<span class="absolute top-2 left-2 text-[10px] font-extrabold uppercase tracking-wider bg-slate-900/70 text-white rounded-full px-2.5 py-1">Before</span>' +
+      '<span class="absolute top-2 right-2 text-[10px] font-extrabold uppercase tracking-wider bg-sky-500/90 text-white rounded-full px-2.5 py-1">After</span>' +
+    '</div>' +
+    '<div class="p-5">' +
+      '<p class="font-bold text-slate-800 truncate" title="' + escapeHtml(r.name) + '">' + escapeHtml(r.name) + '</p>' +
+      '<div class="flex items-center gap-3 mt-2 text-sm">' +
+        '<span class="text-slate-400 line-through font-semibold">' + formatBytes(r.origBytes) + '</span>' +
+        '<span class="text-slate-300">→</span>' +
+        '<span class="font-extrabold text-sky-600">' + formatBytes(r.compBytes) + '</span>' +
+        '<span class="ml-auto text-xs font-extrabold text-emerald-600 bg-emerald-50 rounded-full px-2.5 py-1">−' + saved + '%</span>' +
+      '</div>' +
+      '<div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-slate-500 font-medium">' +
+        '<span>' + r.w + ' × ' + r.h + ' px</span>' +
+        '<span>' + r.outMime.replace('image/', '').toUpperCase() + '</span>' +
+        (r.quality != null ? '<span>quality ' + Math.round(r.quality * 100) + '%</span>' : '') +
+      '</div>' +
+      (r.note ? '<p class="mt-2 text-xs text-amber-600 font-semibold">' + escapeHtml(r.note) + '</p>' : '') +
+      '<div class="flex gap-2 mt-4">' +
+        '<a href="' + r.url + '" download="' + escapeHtml(r.name) + '" class="flex-1 text-center px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-bold shadow-md shadow-sky-300/50 hover:scale-[1.02] active:scale-95 transition">⬇ Download</a>' +
+        '<button class="rm px-4 py-2.5 rounded-xl glass text-slate-500 font-bold hover:text-rose-500 transition" data-i="' + idx + '">✕</button>' +
+      '</div>' +
+    '</div>';
+  // comparison slider drag
+  const cmp = card.querySelector('.cmp');
+  const setPos = (clientX) => {
+    const rect = cmp.getBoundingClientRect();
+    const p = Math.min(98, Math.max(2, ((clientX - rect.left) / rect.width) * 100));
+    cmp.style.setProperty('--pos', p + '%');
+  };
+  let dragging = false;
+  cmp.addEventListener('pointerdown', (e) => { dragging = true; cmp.setPointerCapture(e.pointerId); setPos(e.clientX); });
+  cmp.addEventListener('pointermove', (e) => { if (dragging) setPos(e.clientX); });
+  ['pointerup', 'pointercancel'].forEach(ev => cmp.addEventListener(ev, () => { dragging = false; }));
+  return card;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+resultsEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('button.rm'); if (!btn) return;
+  const i = parseInt(btn.dataset.i, 10);
+  const r = results[i];
+  if (r) { URL.revokeObjectURL(r.url); URL.revokeObjectURL(r.origUrl); results.splice(i, 1); renderAll(); }
+});
+
+function renderAll() {
+  resultsEl.innerHTML = '';
+  results.forEach((r, i) => resultsEl.appendChild(resultCard(r, i)));
+  refreshControls();
+}
+
+compressBtn.addEventListener('click', async () => {
+  if (!queue.length) return;
+  compressBtn.disabled = true; progressEl.innerHTML = '<span class="inline-block w-4 h-4 border-2 border-sky-400 border-t-transparent rounded-full spin align-middle mr-1"></span> Working…';
+  setMsg('', '');
+  let ok = 0, fail = 0;
+  for (let i = 0; i < queue.length; i++) {
+    const f = queue[i];
+    progressEl.textContent = 'Processing ' + (i + 1) + ' of ' + queue.length + '…';
+    try {
+      const r = await processOne(f);
+      results.push(r); ok++;
+    } catch (err) {
+      fail++;
+      setMsg('Skipped "' + f.name + '": ' + err.message, 'error');
+    }
+    renderAll();
+  }
+  queue = [];
+  progressEl.textContent = ok ? ('Done — ' + ok + ' compressed' + (fail ? ', ' + fail + ' skipped' : '')) : '';
+  if (ok && !fail) setMsg(ok + ' image' + (ok > 1 ? 's' : '') + ' compressed. Drag the divider to compare before & after.', 'ok');
+  compressBtn.disabled = false;
+  refreshControls();
+});
+
+downloadAllBtn.addEventListener('click', () => {
+  results.forEach((r, i) => {
+    setTimeout(() => {
+      const a = document.createElement('a');
+      a.href = r.url; a.download = r.name;
+      document.body.appendChild(a); a.click(); a.remove();
+    }, i * 450);
+  });
+});
+</script>
+
+<!-- ======= SEO ARTICLE ======= -->
+<section class="max-w-4xl mx-auto px-4 sm:px-6 pb-6">
+  <article id="seo-article" class="glass rounded-3xl p-6 sm:p-10 prose prose-slate max-w-none">
+    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-4">The Complete Guide to Image Compression: Smaller Files, Same Great Photos</h2>
+
+    <p class="text-slate-600 leading-relaxed mb-4">Every photo you take, every banner you design, and every product shot you upload carries a hidden cost: file size. A single uncompressed photo from a modern phone can weigh 4 to 8 megabytes. Put ten of those on a webpage and you are asking visitors to download 50 megabytes before they see anything useful. On a slow mobile connection that can take half a minute — and most visitors will leave long before that. Image compression is the craft of shrinking those files dramatically while keeping them looking great, and this guide explains exactly how it works, when to use each technique, and how to pick the right settings for every situation.</p>
+
+    <h3 class="text-xl font-extrabold text-slate-900 mt-8 mb-3">Why image file size matters more than ever</h3>
+    <p class="text-slate-600 leading-relaxed mb-4">Search engines now treat page speed as a ranking factor. Google's Core Web Vitals measure how quickly the largest visible element loads, and on most pages that element is an image. A page whose hero image loads in under a second feels instant; the same page with a five-megabyte hero feels broken. Beyond rankings, there is a simple human truth: every extra second of loading costs you visitors. Studies of e-commerce sites have repeatedly shown that conversion rates fall as load times rise, and images are almost always the biggest contributor to page weight.</p>
+    <p class="text-slate-600 leading-relaxed mb-4">File size matters offline too. Email providers cap attachments, messaging apps downscale aggressively, and government and university application portals famously reject photos that exceed strict limits — 20 KB, 50 KB, or 100 KB are common thresholds on exam and job forms. Social platforms compress uploads on their own terms, often with ugly results. Taking control of compression yourself means your images look the way you intended, everywhere they appear.</p>
+
+    <h3 class="text-xl font-extrabold text-slate-900 mt-8 mb-3">Lossy vs. lossless: the two philosophies of compression</h3>
+    <p class="text-slate-600 leading-relaxed mb-4">All image compression falls into two camps. Lossless compression reorganizes the data in a file without throwing any of it away — like zipping a document. The image that comes out is pixel-for-pixel identical to the one that went in. PNG uses lossless compression, which is why it is the right choice for logos, screenshots, diagrams, and anything with sharp text or flat colors. The catch is that lossless files stay relatively large, especially for photographs.</p>
+    <p class="text-slate-600 leading-relaxed mb-4">Lossy compression takes a bolder approach: it deliberately discards detail that human eyes are unlikely to notice. JPEG and WebP are lossy formats. They exploit quirks of human vision — we are far more sensitive to changes in brightness than to changes in color, and we barely register fine noise in busy textures. A well-compressed JPEG can be one-tenth the size of the original with no visible difference. Push the quality too low, though, and you get blocky artifacts, banding in smooth skies, and halos around text. The art of compression is finding the sweet spot for each image.</p>
+
+    <h3 class="text-xl font-extrabold text-slate-900 mt-8 mb-3">JPEG, PNG, WebP: choosing the right format</h3>
+    <p class="text-slate-600 leading-relaxed mb-4">JPEG is the universal workhorse. Every browser, phone, and printer understands it, and it compresses photographs beautifully. Use it when maximum compatibility matters — email attachments, uploads to older portals, or sharing with people whose software you cannot control. Its weakness is transparency: JPEG cannot do it, and its quality slider is a blunt instrument for graphics with text.</p>
+    <p class="text-slate-600 leading-relaxed mb-4">PNG keeps every pixel perfect and supports transparency, making it ideal for logos, icons, interface screenshots, and images that will be edited again later. But saving a photograph as PNG can produce a file ten times larger than the equivalent JPEG. If your PNG photo is enormous, converting it to JPEG or WebP at high quality is usually the single biggest win available.</p>
+    <p class="text-slate-600 leading-relaxed mb-4">WebP is the modern answer. Developed for the web, it delivers JPEG-like quality at roughly 25 to 35 percent smaller file sizes, supports transparency like PNG, and even handles animation. Every modern browser supports it, and it has become the default recommendation for website images. Converting a library of JPEGs to WebP is one of the fastest page-speed upgrades a site owner can make — and a one-click conversion is exactly what the tool above does, entirely in your browser.</p>
+
+    <h3 class="text-xl font-extrabold text-slate-900 mt-8 mb-3">How "compress to an exact KB" actually works</h3>
+    <p class="text-slate-600 leading-relaxed mb-4">Most compressors ask you to pick a quality number and hope the result lands near the size you need. That is guesswork, because the relationship between quality and file size depends on the image itself: a busy, detailed photo compresses far less readily than a soft portrait. A quality setting of 60 might yield 90 KB on one photo and 300 KB on another.</p>
+    <p class="text-slate-600 leading-relaxed mb-4">The smarter approach — the one PixelSlim uses in target-size mode — is a binary search over the quality parameter. The tool encodes the image at a middle quality, checks the resulting size against your target, then halves the search range: too big, so try lower quality; comfortably small, so try higher. After about eight rounds it converges on the highest quality whose file size fits under your limit. The result is not "approximately 100 KB" but the best-looking image that is guaranteed under 100 KB. If even the lowest quality is too large, the tool falls back to gently reducing the image dimensions and searching again — because a slightly smaller image at decent quality almost always looks better than a full-size image crushed to mush.</p>
+    <p class="text-slate-600 leading-relaxed mb-4">This is particularly valuable for form uploads with hard limits. When a portal says "photo must not exceed 50 KB," a file of 51 KB is rejected just as surely as one of 5 MB. Typing "50" as your target and downloading the result removes the entire trial-and-error loop.</p>
+
+    <h3 class="text-xl font-extrabold text-slate-900 mt-8 mb-3">Dimensions matter more than quality sliders</h3>
+    <p class="text-slate-600 leading-relaxed mb-4">Here is a secret that surprises many people: resizing an image usually shrinks it more than any quality setting. A 4000-pixel-wide photo displayed at 800 pixels on a page is carrying twenty-five times more pixels than anyone will see. Halving each dimension cuts the pixel count — and roughly the file size — to a quarter. Before touching quality, ask what size the image will actually be viewed at. A profile photo shown at 200 pixels never needs to be 3000 pixels wide.</p>
+    <p class="text-slate-600 leading-relaxed mb-4">A good workflow is: first resize to the display size (with a little headroom for high-density screens, which render at two or three times the CSS size), then compress to your target file size. The resize dropdown in the tool above handles the first step; the target-size engine handles the second.</p>
+
+    <h3 class="text-xl font-extrabold text-slate-900 mt-8 mb-3">Batch compression: taming whole folders</h3>
+    <p class="text-slate-600 leading-relaxed mb-4">Real-world image work is rarely one file at a time. A photographer returns from a shoot with three hundred photos. A store owner needs to optimize an entire product catalog. Doing these one by one in a single-image tool is an afternoon lost. Batch compression applies the same target size, format, and dimensions to every image in a folder and produces a downloadable file for each — with before-and-after statistics so you can verify the savings. Because everything runs locally in the browser, there is no upload queue, no per-day quota, and no waiting on a distant server. Your computer's processor does the work directly, which is also why batch jobs complete in seconds rather than minutes.</p>
+
+    <h3 class="text-xl font-extrabold text-slate-900 mt-8 mb-3">Privacy: why in-browser compression matters</h3>
+    <p class="text-slate-600 leading-relaxed mb-4">Traditional online compressors work by uploading your images to a server, processing them there, and sending the results back. That means your photos — family pictures, ID documents, client work, unreleased designs — travel across the internet and sit on someone else's machine, governed by a privacy policy you probably did not read. In-browser compression flips this model: the page downloads a small program once, and from then on every pixel is processed by your own device. You can verify this yourself by opening your browser's developer tools and watching the network tab stay silent while images compress. As a bonus, the encoding step automatically strips embedded metadata such as GPS coordinates and camera details, which is one fewer privacy leak to worry about when sharing photos publicly.</p>
+
+    <h3 class="text-xl font-extrabold text-slate-900 mt-8 mb-3">Practical quality guidelines</h3>
+    <p class="text-slate-600 leading-relaxed mb-4">There is no single perfect quality number, but these starting points work well. For website hero images where visual impact matters, 80 to 85 percent quality in WebP or JPEG keeps things crisp. For blog content images and thumbnails, 70 to 80 percent is the sweet spot where savings are large and artifacts invisible. For strict upload limits, forget the slider entirely and use target-size mode — let the binary search do the thinking. For archival copies you plan to edit again, keep a lossless original and only compress the copies you publish. And always compare before and after at full size before publishing anything important: zoom into faces, text, and smooth gradients, where compression artifacts show first.</p>
+
+    <h3 class="text-xl font-extrabold text-slate-900 mt-8 mb-3">Common mistakes to avoid</h3>
+    <p class="text-slate-600 leading-relaxed mb-4">The most damaging mistake is compressing a JPEG, saving it, and compressing that result again later — each generation of lossy compression piles new artifacts onto old ones. Always compress from the highest-quality source you have. Another frequent error is saving screenshots or text-heavy graphics as JPEG, which smears sharp edges; PNG or WebP handles those far better. Finally, do not upscale small images to hit a dimension requirement and then compress — upscaling invents blurry pixels that compress poorly and look worse than the honest original. If a portal demands minimum dimensions your photo cannot meet, it is better to retake or rescan than to stretch.</p>
+
+    <p class="text-slate-600 leading-relaxed mt-8">Image compression is one of those rare skills where a few minutes of understanding pays off every single day — faster websites, successful form uploads, and photos that look exactly as intended. With a free tool that targets exact file sizes, processes batches locally, and converts to modern formats in one click, there is no reason to ever wrestle with a quality slider and a prayer again.</p>
+  </article>
+
+  <!-- ======= FAQS ======= -->
+  <div class="mt-8">
+    <h2 class="text-2xl font-extrabold text-slate-900 text-center mb-5">Frequently asked questions</h2>
+    <div id="faqList" class="space-y-3">
+      <div class="faq-item glass rounded-2xl overflow-hidden">
+        <button class="faq-q w-full text-left px-5 py-4 font-bold text-slate-800 flex items-center justify-between gap-3">Are my images uploaded to a server?<svg class="faq-chev shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-a px-5"><p class="pb-5 text-sm text-slate-600 leading-relaxed">No. PixelSlim runs entirely in your browser using the Canvas API. Your images are decoded, resized, and re-encoded on your own device — nothing is ever transmitted to a server. You can confirm this by opening your browser's developer tools and watching the network tab remain silent while compression runs.</p></div>
+      </div>
+      <div class="faq-item glass rounded-2xl overflow-hidden">
+        <button class="faq-q w-full text-left px-5 py-4 font-bold text-slate-800 flex items-center justify-between gap-3">Which image formats are supported?<svg class="faq-chev shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-a px-5"><p class="pb-5 text-sm text-slate-600 leading-relaxed">You can upload JPEG, PNG, WebP, BMP, and GIF files (GIFs are compressed as static images using their first frame). You can convert the output to WebP for the smallest files, JPEG for universal compatibility, or PNG when you need lossless quality.</p></div>
+      </div>
+      <div class="faq-item glass rounded-2xl overflow-hidden">
+        <button class="faq-q w-full text-left px-5 py-4 font-bold text-slate-800 flex items-center justify-between gap-3">How do I compress a photo to exactly 100 KB?<svg class="faq-chev shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-a px-5"><p class="pb-5 text-sm text-slate-600 leading-relaxed">Select "Target size" mode, type 100 in the KB field (or tap the 100 KB preset chip), add your photo, and press Compress. PixelSlim binary-searches the quality setting to find the highest quality that fits under 100 KB — so the file is guaranteed within the limit instead of approximately near it.</p></div>
+      </div>
+      <div class="faq-item glass rounded-2xl overflow-hidden">
+        <button class="faq-q w-full text-left px-5 py-4 font-bold text-slate-800 flex items-center justify-between gap-3">What quality setting should I use for website images?<svg class="faq-chev shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-a px-5"><p class="pb-5 text-sm text-slate-600 leading-relaxed">For most web photos, 75–85% quality in WebP format gives an excellent balance — files are dramatically smaller than the original with no visible difference. Use 80–85% for large hero images where quality matters most, and 70–80% for thumbnails and blog images. For strict upload limits, skip the slider and use target-size mode instead.</p></div>
+      </div>
+      <div class="faq-item glass rounded-2xl overflow-hidden">
+        <button class="faq-q w-full text-left px-5 py-4 font-bold text-slate-800 flex items-center justify-between gap-3">Does compression remove metadata like location data?<svg class="faq-chev shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-a px-5"><p class="pb-5 text-sm text-slate-600 leading-relaxed">Yes. Because images are re-encoded through the browser's canvas, embedded EXIF metadata — including GPS coordinates, camera model, and timestamps — is automatically stripped from the compressed output. This makes the tool a simple way to sanitize photos before sharing them publicly.</p></div>
+      </div>
+      <div class="faq-item glass rounded-2xl overflow-hidden">
+        <button class="faq-q w-full text-left px-5 py-4 font-bold text-slate-800 flex items-center justify-between gap-3">Is there a limit on how many images I can compress?<svg class="faq-chev shrink-0" width="18" height="18" viewBox="0 0 24" fill="none" stroke="#0EA5E9" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="faq-a px-5"><p class="pb-5 text-sm text-slate-600 leading-relaxed">No. Usage is unlimited and free — there are no daily quotas, no file-count caps, no watermarks, and no account required. Processing happens on your device, so the only practical limit is your computer's memory for very large batches.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "Are my images uploaded to a server?", "acceptedAnswer": {"@type": "Answer", "text": "No. PixelSlim runs entirely in your browser using the Canvas API. Your images are decoded, resized, and re-encoded on your own device — nothing is ever transmitted to a server."}},
+    {"@type": "Question", "name": "Which image formats are supported?", "acceptedAnswer": {"@type": "Answer", "text": "You can upload JPEG, PNG, WebP, BMP, and GIF files (GIFs are compressed as static images using their first frame). Output can be WebP, JPEG, or PNG."}},
+    {"@type": "Question", "name": "How do I compress a photo to exactly 100 KB?", "acceptedAnswer": {"@type": "Answer", "text": "Select Target size mode, type 100 in the KB field or tap the 100 KB preset, add your photo, and press Compress. PixelSlim binary-searches the quality setting to find the highest quality that fits under 100 KB."}},
+    {"@type": "Question", "name": "What quality setting should I use for website images?", "acceptedAnswer": {"@type": "Answer", "text": "For most web photos, 75–85% quality in WebP format gives an excellent balance of size and visual quality. Use 80–85% for hero images and 70–80% for thumbnails."}},
+    {"@type": "Question", "name": "Does compression remove metadata like location data?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Images re-encoded through the browser canvas have embedded EXIF metadata — including GPS coordinates — automatically stripped."}},
+    {"@type": "Question", "name": "Is there a limit on how many images I can compress?", "acceptedAnswer": {"@type": "Answer", "text": "No. Usage is unlimited and free — no daily quotas, no file-count caps, no watermarks, and no account required."}}
+  ]
+}
+</script>
+
+<script>
+document.querySelectorAll('.faq-q').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.faq-item');
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(x => x.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+</script>
+
+<!-- ======= FOOTER ======= -->
+<footer class="max-w-6xl mx-auto px-4 sm:px-6 pb-10 pt-4 text-center">
+  <div class="glass rounded-2xl px-6 py-5 inline-block">
+    <p class="font-extrabold text-slate-800">Pixel<span class="text-sky-500">Slim</span></p>
+    <p class="text-xs text-slate-500 mt-1">Free image compression, right in your browser. No signup · No watermark · No uploads.</p>
+  </div>
+</footer>
+
+</body>
+</html>
